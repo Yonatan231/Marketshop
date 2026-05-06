@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty & Shoes E-Commerce</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <section id="login" class="screen active">
+            <div class="login-container">
+                <h1>Iniciar Sesión</h1>
+                <form id="login-form">
+                    <input type="text" placeholder="Correo o Teléfono" required>
+                    <input type="password" placeholder="Contraseña" required>
+                    <button type="submit">Iniciar Sesión</button>
+                </form>
+                <div class="social-login">
+                    <button class="google-btn">Continuar con Google</button>
+                    <button class="facebook-btn">Continuar con Facebook</button>
+                </div>
+                <p>¿No tienes cuenta? <a href="#" id="to-register">Regístrate</a></p>
+            </div>
+        </section>
+
+        <!-- Home Screen -->
+        <section id="home" class="screen">
+            <header>
+                <div class="banner">
+                    <h2>Ofertas Flash en Maquillaje 💄</h2>
+                    <p>¡Hasta 50% off!</p>
+                </div>
+            </header>
+            <main>
+                <h3>Productos Destacados</h3>
+                <div class="products-grid" id="products-grid">
+                    <!-- Products will be loaded here -->
+                </div>
+            </main>
+            <nav class="bottom-nav">
+                <button class="nav-btn active" data-screen="home">🏠</button>
+                <button class="nav-btn" data-screen="cart">🛒</button>
+                <button class="nav-btn" data-screen="rewards">🎁</button>
+                <button class="nav-btn" data-screen="profile">👤</button>
+            </nav>
+        </section>
+
+        <!-- Product Detail Screen -->
+        <section id="product-detail" class="screen">
+            <div class="product-detail-container">
+                <img id="product-image" src="" alt="Producto">
+                <h2 id="product-name"></h2>
+                <p id="product-price"></p>
+                <div id="product-rating">⭐⭐⭐⭐⭐</div>
+                <button id="add-to-cart">Agregar al Carrito</button>
+                <button id="buy-now">Comprar Ahora</button>
+            </div>
+            <button class="back-btn" data-screen="home">← Volver</button>
+        </section>
+
+        <!-- Cart Screen -->
+        <section id="cart" class="screen">
+            <h2>Carrito de Compras</h2>
+            <div id="cart-items">
+                <!-- Cart items here -->
+            </div>
+            <div class="cart-total">
+                <p>Total: $<span id="total">0</span></p>
+                <p id="roulette-info" class="discount-info"></p>
+                <p id="discount-info" class="discount-info"></p>
+                <input type="text" placeholder="Cupón de descuento" id="coupon">
+                <button id="apply-coupon">Aplicar</button>
+                <button id="checkout">Proceder al Pago</button>
+            </div>
+            <button class="back-btn" data-screen="home">← Volver</button>
+        </section>
+
+        <!-- Rewards Screen -->
+        <section id="rewards" class="screen">
+            <h2>Sistema de Recompensas</h2>
+            <div class="rewards-container">
+                <div class="check-in">
+                    <h3>Check-in Diario</h3>
+                    <button id="daily-checkin">Obtener Monedas</button>
+                    <p>Monedas: <span id="coins">0</span></p>
+                </div>
+                <div class="roulette">
+                    <h3>Ruleta de Premios</h3>
+                    <div class="roulette-frame">
+                        <div class="roulette-wrapper">
+                            <div id="roulette-wheel" class="roulette-wheel"></div>
+                            <div id="roulette-overlay" class="roulette-overlay">
+                                <div class="segment segment-1"><span>10%</span></div>
+                                <div class="segment segment-2"><span>25%</span></div>
+                                <div class="segment segment-3"><span>50%</span></div>
+                                <div class="segment segment-4"><span>75%</span></div>
+                                <div class="segment segment-5"><span>Envío Gratis</span></div>
+                                <div class="segment segment-6"><span>Nada</span></div>
+                            </div>
+                            <div class="roulette-center">Gira</div>
+                        </div>
+                        <button id="spin-roulette">Girar</button>
+                    </div>
+                    <div id="roulette-result" class="roulette-result"></div>
+                </div>
+            </div>
+            <button class="back-btn" data-screen="home">← Volver</button>
+        </section>
+
+        <!-- Profile Screen -->
+        <section id="profile" class="screen">
+            <h2>Perfil</h2>
+            <div class="profile-card">
+                <div class="profile-avatar">👤</div>
+                <h3 id="profile-name">Usuario</h3>
+                <p id="profile-email">Por favor inicia sesión</p>
+                <div class="profile-summary">
+                    <div>
+                        <span id="profile-coins">0</span>
+                        <small>Monedas</small>
+                    </div>
+                    <div>
+                        <span id="profile-orders">0</span>
+                        <small>Compras</small>
+                    </div>
+                    <div>
+                        <span id="profile-discount">Sin descuento</span>
+                        <small>Ruleta</small>
+                    </div>
+                </div>
+                <button id="logout">Cerrar sesión</button>
+            </div>
+            <button class="back-btn" data-screen="home">← Volver</button>
+        </section>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script id="product-data" type="application/json">{{ products|tojson|safe }}</script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
