@@ -60,7 +60,7 @@ backBtns.forEach(btn => {
 });
 
 // Login
-document.getElementById('login-form').addEventListener('submit', (e) => {
+/*document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const loginInput = document.querySelector('#login-form input[type="text"]');
     const passwordInput = document.querySelector('#login-form input[type="password"]');
@@ -71,7 +71,7 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
     localStorage.setItem('profileEmail', profileEmail);
     showScreen('home');
     loadProducts();
-});
+});*/
 
 // Load Products
 function loadProducts() {

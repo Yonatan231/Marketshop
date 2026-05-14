@@ -6,11 +6,11 @@ app = Flask(__name__)
 db = pymysql.connect(
     host='localhost',
     user='root',
-    password='',
-    database='mfms',
+    password='1234',
+    database='marketshop',
     cursorclass=pymysql.cursors.DictCursor
 )  
-from flask import Flask, render_template
+
 
 app = Flask(__name__)
 
@@ -22,6 +22,8 @@ def login():
 
     correo=request.form.get('correo')
     password=request.form.get('password')
+    print(f"LOGIN INTENTO=> CORREO: {correo}, PASSWORD: {password}")
+
     if not correo or not password:
         return "Debe ingresar correo y contraseña"
 
