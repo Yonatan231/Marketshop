@@ -1,8 +1,95 @@
 from flask import Flask, render_template
+import pymysql
+from flask import Flask, render_template, request, redirect, url_for
+app = Flask(__name__)
+# -------------------- CONEXIÓN BD --------------------
+db = pymysql.connect(
+    host='localhost',
+    user='root',
+    password='',
+    database='mfms',
+    cursorclass=pymysql.cursors.DictCursor
+)  
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
-products = [
+@app.route('/', methods=['POST','GET'])
+def login():
+    products = []
+    if request.method == 'GET':
+        return render_template('index.html', products=products)
+
+    correo=request.form.get('correo')
+    password=request.form.get('password')
+    if not correo or not password:
+        return "Debe ingresar correo y contraseña"
+
+    cursor = db.cursor()
+
+    sql="""SELECT*FROM usuarios WHERE correo=%s AND password=%s"""
+    cursor.execute(sql,(correo,password))
+    usuario=cursor.fetchone()
+    print(usuario)
+    cursor.close()
+    if usuario is not None:
+        return redirect(url_for ('inventario'))
+    else:
+        return "correo o contraseña incorrecta"
+    
+
+    
+@app.route('/inventario.html')
+def inventario():
+     return render_template('inventario.html')
+
+@app.route('/registro.html', methods=['GET', 'POST'] )
+def registro():
+    
+
+    
+    if request.method == 'POST':
+        # Obtener datos del formulario
+        nombre = request.form['nombre']
+        correo = request.form['email']
+        password = request.form['password']
+        
+         # Crear cursor
+        cursor = db.cursor()
+
+        # Insertar usuario en MySQL
+        sql = """
+            INSERT INTO usuarios (nombre, correo, password)
+            VALUES (%s, %s, %s)
+        """
+        cursor.execute(sql, (nombre, correo, password))
+
+        # Guardar cambios
+        db.commit()
+
+        # Cerrar cursor
+        cursor.close()
+
+        # Aquí puedes guardar los datos en una base de datos
+        print("Nuevo usuario registrado:")
+        print("Nombre:", nombre)
+        print("Correo:", correo)
+        print("Contraseña:", password)
+
+        # Redirigir al login después del registro
+        return redirect(url_for('login'))
+
+    # Si es GET, mostrar el formulario de registro
+    return render_template('registro.html')
+
+
+# -------------------------
+# Ejecutar la aplicación
+# -------------------------
+
+if __name__ == '__main__':
+    app.run(debug=True)
+    products = [
     {
         "id": 1,
         "name": "Labial Mate Premium",
@@ -59,9 +146,9 @@ products = [
     },
 ]
 
-@app.route('/')
+"""@app.route('/')
 def home():
-    return render_template('index.html', products=products)
+    return render_template('index.html', products=products)"""
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+"""if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)"""

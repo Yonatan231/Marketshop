@@ -33,11 +33,11 @@ backBtns.forEach(btn => {
 });
 
 // Login
-document.getElementById('login-form').addEventListener('submit', (e) => {
+/*document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     showScreen('home');
     loadProducts();
-});
+});*/
 
 // Load Products
 function loadProducts() {
