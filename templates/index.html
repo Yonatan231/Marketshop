@@ -9,10 +9,10 @@
 <body>
     <div id="app">
         <!-- Login Screen -->
-        <section id="login" class="screen active">
+        <section id="login" class="screen {% if user_logged_in %}{% else %}active{% endif %}">
             <div class="login-container">
                 <h1>Iniciar Sesión</h1>
-                <form action="{{ url_for('login') }}" id="login-form" method="POST">
+                <form action="{{ url_for('iniciar_sesion.iniciar_sesion') }}" id="login-form" method="POST">
                     <input type="email" name="correo" placeholder="Correo o Teléfono" required>
                     <input type="password" name="password" placeholder="Contraseña" required>
                     <button type="submit">Iniciar Sesión</button>
@@ -26,7 +26,7 @@
         </section>
 
         <!-- Home Screen -->
-        <section id="home" class="screen">
+        <section id="home" class="screen {% if user_logged_in %}active{% endif %}">
             <header>
                 <div class="banner">
                     <h2>Ofertas Flash en Maquillaje 💄</h2>
@@ -136,7 +136,6 @@
         </section>
     </div>
     <div id="toast" class="toast"></div>
-    <script id="product-data" type="application/json">{{ products|tojson|safe }}</script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

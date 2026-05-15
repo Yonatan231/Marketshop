@@ -10,7 +10,10 @@ let orderCount = Number(localStorage.getItem('orderCount')) || 0;
 let profileName = localStorage.getItem('profileName') || '';
 let profileEmail = localStorage.getItem('profileEmail') || '';
 
-const products = JSON.parse(document.getElementById('product-data').textContent || '[]');
+const productDataElement = document.getElementById('product-data');
+const products = productDataElement
+    ? JSON.parse(productDataElement.textContent || '[]')
+    : [];
 
 // Normalize cart data from storage to avoid NaN when quantity is missing
 cart = cart.map(item => ({
@@ -76,6 +79,7 @@ backBtns.forEach(btn => {
 // Load Products
 function loadProducts() {
     const grid = document.getElementById('products-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     products.forEach(product => {
         const card = document.createElement('div');
@@ -92,29 +96,38 @@ function loadProducts() {
 
 // Show Product Detail
 function showProductDetail(product) {
-    document.getElementById('product-image').src = product.image;
-    document.getElementById('product-name').textContent = product.name;
-    document.getElementById('product-price').textContent = `$${product.price - product.discount} (Antes $${product.price})`;
-    document.getElementById('product-rating').textContent = '⭐'.repeat(product.rating);
+    const productImage = document.getElementById('product-image');
+    const productName = document.getElementById('product-name');
+    const productPrice = document.getElementById('product-price');
+    const productRating = document.getElementById('product-rating');
+    if (!productImage || !productName || !productPrice || !productRating) return;
+
+    productImage.src = product.image;
+    productName.textContent = product.name;
+    productPrice.textContent = `$${product.price - product.discount} (Antes $${product.price})`;
+    productRating.textContent = '⭐'.repeat(product.rating);
     showScreen('product-detail');
 }
 
 // Add to Cart
-document.getElementById('add-to-cart').addEventListener('click', () => {
-    const name = document.getElementById('product-name').textContent;
-    const product = products.find(p => p.name === name);
-    if (!product) return;
+const addToCartButton = document.getElementById('add-to-cart');
+if (addToCartButton) {
+    addToCartButton.addEventListener('click', () => {
+        const name = document.getElementById('product-name')?.textContent || '';
+        const product = products.find(p => p.name === name);
+        if (!product) return;
 
-    const existing = cart.find(item => item.id === product.id);
-    if (existing) {
-        existing.quantity += 1;
-    } else {
-        cart.push({ ...product, quantity: 1 });
-    }
-    saveCart();
-    showToast('Agregado al carrito');
-    showScreen('home');
-});
+        const existing = cart.find(item => item.id === product.id);
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            cart.push({ ...product, quantity: 1 });
+        }
+        saveCart();
+        showToast('Agregado al carrito');
+        showScreen('home');
+    });
+}
 
 function calculateTotal() {
     return cart.reduce((sum, item) => {
@@ -125,7 +138,8 @@ function calculateTotal() {
 }
 
 function getCouponDiscount(total) {
-    const coupon = document.getElementById('coupon').value.trim().toUpperCase();
+    const couponInput = document.getElementById('coupon');
+    const coupon = couponInput ? couponInput.value.trim().toUpperCase() : '';
     if (coupon === 'DESC10') {
         return total * 0.1;
     }
@@ -139,6 +153,7 @@ function getRouletteDiscount(total) {
 // Load Cart
 function loadCart() {
     const cartItems = document.getElementById('cart-items');
+    if (!cartItems) return;
     cartItems.innerHTML = '';
     if (cart.length === 0) {
         cartItems.innerHTML = '<p class="empty-cart">Tu carrito está vacío.</p>';
@@ -173,17 +188,24 @@ function loadCart() {
     const rouletteDiscountAmount = getRouletteDiscount(subtotal);
     const finalTotal = subtotal - couponDiscount - rouletteDiscountAmount;
 
-    document.getElementById('total').textContent = finalTotal.toFixed(2);
+    const totalElement = document.getElementById('total');
+    if (totalElement) {
+        totalElement.textContent = finalTotal.toFixed(2);
+    }
     const discountInfo = document.getElementById('discount-info');
-    discountInfo.textContent = couponDiscount > 0 ? `Descuento cupón aplicado: -$${couponDiscount.toFixed(2)}` : '';
+    if (discountInfo) {
+        discountInfo.textContent = couponDiscount > 0 ? `Descuento cupón aplicado: -$${couponDiscount.toFixed(2)}` : '';
+    }
 
     const rouletteInfo = document.getElementById('roulette-info');
-    if (rouletteDiscount > 0) {
-        rouletteInfo.textContent = `Descuento de ruleta: ${rouletteLabel} (-$${rouletteDiscountAmount.toFixed(2)})`;
-    } else if (rouletteLabel) {
-        rouletteInfo.textContent = rouletteLabel;
-    } else {
-        rouletteInfo.textContent = '';
+    if (rouletteInfo) {
+        if (rouletteDiscount > 0) {
+            rouletteInfo.textContent = `Descuento de ruleta: ${rouletteLabel} (-$${rouletteDiscountAmount.toFixed(2)})`;
+        } else if (rouletteLabel) {
+            rouletteInfo.textContent = rouletteLabel;
+        } else {
+            rouletteInfo.textContent = '';
+        }
     }
 }
 
@@ -210,59 +232,76 @@ window.removeFromCart = function(id) {
 };
 
 // Apply Coupon
-document.getElementById('apply-coupon').addEventListener('click', () => {
-    const coupon = document.getElementById('coupon').value.trim().toUpperCase();
-    if (coupon === 'DESC10') {
-        loadCart();
-        showToast('Cupón aplicado');
-    } else {
-        showToast('Cupón inválido');
-    }
-});
+const applyCouponButton = document.getElementById('apply-coupon');
+if (applyCouponButton) {
+    applyCouponButton.addEventListener('click', () => {
+        const couponInput = document.getElementById('coupon');
+        const coupon = couponInput ? couponInput.value.trim().toUpperCase() : '';
+        if (coupon === 'DESC10') {
+            loadCart();
+            showToast('Cupón aplicado');
+        } else {
+            showToast('Cupón inválido');
+        }
+    });
+}
 
 // Checkout
-document.getElementById('checkout').addEventListener('click', () => {
-    if (cart.length === 0) {
-        showToast('Tu carrito está vacío');
-        return;
-    }
+const checkoutButton = document.getElementById('checkout');
+if (checkoutButton) {
+    checkoutButton.addEventListener('click', () => {
+        if (cart.length === 0) {
+            showToast('Tu carrito está vacío');
+            return;
+        }
 
-    const subtotal = calculateTotal();
-    const discount = getCouponDiscount(subtotal);
-    const finalTotal = subtotal - discount;
+        const subtotal = calculateTotal();
+        const discount = getCouponDiscount(subtotal);
+        const finalTotal = subtotal - discount;
 
-    orderCount += 1;
-    localStorage.setItem('orderCount', orderCount);
-    cart = [];
-    saveCart();
-    loadCart();
-    document.getElementById('coupon').value = '';
-    showToast(`Pago procesado: $${finalTotal.toFixed(2)}`);
-    showScreen('home');
-});
+        orderCount += 1;
+        localStorage.setItem('orderCount', orderCount);
+        cart = [];
+        saveCart();
+        loadCart();
+        const couponInput = document.getElementById('coupon');
+        if (couponInput) couponInput.value = '';
+        showToast(`Pago procesado: $${finalTotal.toFixed(2)}`);
+        showScreen('home');
+    });
+}
 
 // Rewards
-document.getElementById('coins').textContent = coins;
+const coinsElement = document.getElementById('coins');
+if (coinsElement) {
+    coinsElement.textContent = coins;
+}
 
-document.getElementById('logout').addEventListener('click', () => {
-    localStorage.removeItem('profileName');
-    localStorage.removeItem('profileEmail');
-    showScreen('login');
-});
+const logoutButton = document.getElementById('logout');
+if (logoutButton) {
+    logoutButton.addEventListener('click', () => {
+        localStorage.removeItem('profileName');
+        localStorage.removeItem('profileEmail');
+        showScreen('login');
+    });
+}
 
-document.getElementById('daily-checkin').addEventListener('click', () => {
-    const today = new Date().toDateString();
-    const lastCheckin = localStorage.getItem('lastCheckin');
-    if (lastCheckin !== today) {
-        coins += 10;
-        localStorage.setItem('coins', coins);
-        localStorage.setItem('lastCheckin', today);
-        document.getElementById('coins').textContent = coins;
-        alert('¡10 monedas obtenidas!');
-    } else {
-        alert('Ya hiciste check-in hoy');
-    }
-});
+const dailyCheckinButton = document.getElementById('daily-checkin');
+if (dailyCheckinButton) {
+    dailyCheckinButton.addEventListener('click', () => {
+        const today = new Date().toDateString();
+        const lastCheckin = localStorage.getItem('lastCheckin');
+        if (lastCheckin !== today) {
+            coins += 10;
+            localStorage.setItem('coins', coins);
+            localStorage.setItem('lastCheckin', today);
+            if (coinsElement) coinsElement.textContent = coins;
+            alert('¡10 monedas obtenidas!');
+        } else {
+            alert('Ya hiciste check-in hoy');
+        }
+    });
+}
 
 function loadProfile() {
     document.getElementById('profile-name').textContent = profileName || 'Invitada';
@@ -277,51 +316,58 @@ const rouletteOverlay = document.getElementById('roulette-overlay');
 const segmentLabels = Array.from(document.querySelectorAll('.segment span'));
 const spinRouletteButton = document.getElementById('spin-roulette');
 
-document.getElementById('spin-roulette').addEventListener('click', () => {
-    if (coins < 5) {
-        showToast('No tienes suficientes monedas');
-        return;
-    }
+if (spinRouletteButton && rouletteWheel && rouletteOverlay) {
+    spinRouletteButton.addEventListener('click', () => {
+        if (coins < 5) {
+            showToast('No tienes suficientes monedas');
+            return;
+        }
 
-    coins -= 5;
-    localStorage.setItem('coins', coins);
-    document.getElementById('coins').textContent = coins;
+        coins -= 5;
+        localStorage.setItem('coins', coins);
+        if (coinsElement) coinsElement.textContent = coins;
 
-    const prizes = [
-        { label: '10% Descuento', value: 10 },
-        { label: '25% Descuento', value: 25 },
-        { label: '50% Descuento', value: 50 },
-        { label: '75% Descuento', value: 75 },
-        { label: 'Envío Gratis', value: 0 },
-        { label: 'Nada', value: 0 },
-    ];
-    const prizeIndex = Math.floor(Math.random() * prizes.length);
-    const prize = prizes[prizeIndex];
+        const prizes = [
+            { label: '10% Descuento', value: 10 },
+            { label: '25% Descuento', value: 25 },
+            { label: '50% Descuento', value: 50 },
+            { label: '75% Descuento', value: 75 },
+            { label: 'Envío Gratis', value: 0 },
+            { label: 'Nada', value: 0 },
+        ];
+        const prizeIndex = Math.floor(Math.random() * prizes.length);
+        const prize = prizes[prizeIndex];
 
-    spinRouletteButton.disabled = true;
-    rouletteWheel.style.transition = 'transform 2.2s ease-out';
-    rouletteOverlay.style.transition = 'transform 2.2s ease-out';
-    const segmentAngle = 30 + prizeIndex * 60;
-    const targetAngle = (360 - segmentAngle) % 360;
-    const spinAngle = 360 * 6 + targetAngle;
-    rouletteWheel.style.transform = `rotate(${spinAngle}deg)`;
-    rouletteOverlay.style.transform = `rotate(${spinAngle}deg)`;
-    segmentLabels.forEach(span => {
-        span.style.transition = 'transform 2.2s ease-out';
-        span.style.transform = `rotate(${-spinAngle}deg)`;
+        spinRouletteButton.disabled = true;
+        rouletteWheel.style.transition = 'transform 2.2s ease-out';
+        rouletteOverlay.style.transition = 'transform 2.2s ease-out';
+        const segmentAngle = 30 + prizeIndex * 60;
+        const targetAngle = (360 - segmentAngle) % 360;
+        const spinAngle = 360 * 6 + targetAngle;
+        rouletteWheel.style.transform = `rotate(${spinAngle}deg)`;
+        rouletteOverlay.style.transform = `rotate(${spinAngle}deg)`;
+        segmentLabels.forEach(span => {
+            span.style.transition = 'transform 2.2s ease-out';
+            span.style.transform = `rotate(${-spinAngle}deg)`;
+        });
+
+        setTimeout(() => {
+            rouletteDiscount = prize.value;
+            rouletteLabel = prize.label;
+            localStorage.setItem('rouletteDiscount', rouletteDiscount);
+            localStorage.setItem('rouletteLabel', rouletteLabel);
+            const rouletteResult = document.getElementById('roulette-result');
+            if (rouletteResult) {
+                rouletteResult.textContent = `Ganaste: ${prize.label}`;
+            }
+            loadCart();
+            spinRouletteButton.disabled = false;
+            showToast(`Obtuviste ${prize.label}`);
+        }, 2300);
     });
-
-    setTimeout(() => {
-        rouletteDiscount = prize.value;
-        rouletteLabel = prize.label;
-        localStorage.setItem('rouletteDiscount', rouletteDiscount);
-        localStorage.setItem('rouletteLabel', rouletteLabel);
-        document.getElementById('roulette-result').textContent = `Ganaste: ${prize.label}`;
-        loadCart();
-        spinRouletteButton.disabled = false;
-        showToast(`Obtuviste ${prize.label}`);
-    }, 2300);
-});
+}
 
 // Initial load
-loadProducts();
+if (document.getElementById('products-grid')) {
+    loadProducts();
+}

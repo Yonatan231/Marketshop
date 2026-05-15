@@ -22,7 +22,7 @@ def iniciar_sesion():
     sql = """
         SELECT id, nombre, correo
         FROM usuarios
-        WHERE correo = %s AND contrasenia = %s
+        WHERE correo = %s AND password = %s
     """
 
     cursor.execute(sql, (correo, contrasenia))
@@ -35,9 +35,9 @@ def iniciar_sesion():
         flash("Correo o contraseña incorrectos", "error")
         return redirect(url_for("iniciar_sesion.iniciar_sesion"))
 
-    session["id"]             = usuario[0]
-    session["correo"]         = usuario[1]
-    session["nombre_completo"] = usuario[2]
+    session["id"] = usuario["id"]
+    session["nombre"]  = usuario["nombre"]
+    session["correo"] = usuario["correo"]
 
     flash("Inicio de sesión exitoso", "success")
 

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import pymysql
 import os
 from dotenv import load_dotenv
@@ -11,6 +11,7 @@ from models.database import db
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = "1234"
 
 app.register_blueprint(iniciar_sesion_bp)
 app.register_blueprint(registrarse_bp)
@@ -23,7 +24,7 @@ def home():
 
 @app.route('/inventario.html')
 def inventario():
-     return render_template('index.html')
+     return render_template('index.html', user_logged_in=session.get('id') is not None)
 
 '''@app.route('/registro.html', methods=['GET', 'POST'] )
 def regdgsdfistro():
