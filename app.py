@@ -1,18 +1,20 @@
-from flask import Flask, render_template
-import pymysql
 from flask import Flask, render_template, request, redirect, url_for
+import pymysql
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 app = Flask(__name__)
 # -------------------- CONEXIÓN BD --------------------
 db = pymysql.connect(
-    host='localhost',
-    user='root',
-    password='1234',
-    database='marketshop',
+    host=os.getenv('DB_HOST'),
+    user=os.getenv('DB_USER'),
+    password=os.getenv('DB_PASSWORD'),
+    database=os.getenv('DB_NAME'),
     cursorclass=pymysql.cursors.DictCursor
-)  
+)
 
-
-app = Flask(__name__)
 
 @app.route('/', methods=['POST','GET'])
 def login():
