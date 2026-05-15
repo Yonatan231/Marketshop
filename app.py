@@ -3,34 +3,30 @@ import pymysql
 import os
 from dotenv import load_dotenv
 from routes.iniciar_sesion import iniciar_sesion_bp
+from routes.registrarse import registrarse_bp
+from models.database import db
+
+
 
 load_dotenv()
 
 app = Flask(__name__)
 
-# -------------------- CONEXIÓN BD --------------------
-db = pymysql.connect(
-    host=os.getenv('DB_HOST'),
-    user=os.getenv('DB_USER'),
-    password=os.getenv('DB_PASSWORD'),
-    database=os.getenv('DB_NAME'),
-    cursorclass=pymysql.cursors.DictCursor
-)
+app.register_blueprint(iniciar_sesion_bp)
+app.register_blueprint(registrarse_bp)
+
 
 
 @app.route('/')
 def home():
     return render_template('home.html')
 
-    
-
-    
 @app.route('/inventario.html')
 def inventario():
-     return render_template('inventario.html')
+     return render_template('index.html')
 
-@app.route('/registro.html', methods=['GET', 'POST'] )
-def registro():
+'''@app.route('/registro.html', methods=['GET', 'POST'] )
+def regdgsdfistro():
     
 
     
@@ -66,7 +62,7 @@ def registro():
         return redirect(url_for('login'))
 
     # Si es GET, mostrar el formulario de registro
-    return render_template('registro.html')
+    return render_template('registro.html')'''
 
 
 # -------------------------

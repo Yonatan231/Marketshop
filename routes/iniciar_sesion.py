@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from models.database import db
 
 iniciar_sesion_bp = Blueprint("iniciar_sesion", __name__)
 
@@ -34,8 +35,8 @@ def iniciar_sesion():
         flash("Correo o contraseña incorrectos", "error")
         return redirect(url_for("iniciar_sesion.iniciar_sesion"))
 
-    session["id"] = usuario[0]
-    session["correo"] = usuario[1]
+    session["id"]             = usuario[0]
+    session["correo"]         = usuario[1]
     session["nombre_completo"] = usuario[2]
 
     flash("Inicio de sesión exitoso", "success")
