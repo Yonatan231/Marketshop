@@ -2,10 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for
 import pymysql
 import os
 from dotenv import load_dotenv
+from routes.iniciar_sesion import iniciar_sesion_bp
 
 load_dotenv()
 
 app = Flask(__name__)
+
 # -------------------- CONEXIÓN BD --------------------
 db = pymysql.connect(
     host=os.getenv('DB_HOST'),
@@ -16,30 +18,10 @@ db = pymysql.connect(
 )
 
 
-@app.route('/', methods=['POST','GET'])
-def login():
-    products = []
-    if request.method == 'GET':
-        return render_template('index.html', products=products)
+@app.route('/')
+def home():
+    return render_template('home.html')
 
-    correo=request.form.get('correo')
-    password=request.form.get('password')
-    print(f"LOGIN INTENTO=> CORREO: {correo}, PASSWORD: {password}")
-
-    if not correo or not password:
-        return "Debe ingresar correo y contraseña"
-
-    cursor = db.cursor()
-
-    sql="""SELECT*FROM usuarios WHERE correo=%s AND password=%s"""
-    cursor.execute(sql,(correo,password))
-    usuario=cursor.fetchone()
-    print(usuario)
-    cursor.close()
-    if usuario is not None:
-        return redirect(url_for ('inventario'))
-    else:
-        return "correo o contraseña incorrecta"
     
 
     
