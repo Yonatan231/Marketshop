@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Pago{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .pagina-titulo {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 0.3rem;
+    }
+
+    .pagina-subtitulo {
+        color: #888;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
+
+    .pago-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 600px) {
+        .pago-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Resumen */
+    .resumen {
+        background: #fff;
+        border: 1px solid #efefed;
+        border-radius: 8px;
+        padding: 1.2rem 1.5rem;
+    }
+
+    .resumen h3 {
+        font-size: 0.95rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: #222;
+    }
+
+    .resumen-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #555;
+        padding: 0.35rem 0;
+        border-bottom: 1px solid #f5f5f3;
+    }
+
+    .resumen-item:last-of-type {
+        border-bottom: none;
+    }
+
+    .resumen-fila {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.88rem;
+        color: #555;
+        padding: 0.4rem 0;
+    }
+
+    .resumen-fila.descuento {
+        color: #2e7d32;
+    }
+
+    .resumen-fila.total {
+        border-top: 1px solid #efefed;
+        margin-top: 0.5rem;
+        padding-top: 0.8rem;
+        font-weight: bold;
+        font-size: 1rem;
+        color: #222;
+    }
+
+    /* Formulario */
+    .formulario {
+        background: #fff;
+        border: 1px solid #efefed;
+        border-radius: 8px;
+        padding: 1.2rem 1.5rem;
+    }
+
+    .formulario h3 {
+        font-size: 0.95rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: #222;
+    }
+
+    .campo {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        margin-bottom: 1rem;
+    }
+
+    .campo label {
+        font-size: 0.8rem;
+        color: #777;
+        letter-spacing: 0.03em;
+    }
+
+    .campo input {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-family: inherit;
+    }
+
+    .campo input:focus {
+        outline: none;
+        border-color: #222;
+    }
+
+    .campos-fila {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .btn-confirmar {
+        display: block;
+        width: 100%;
+        padding: 0.85rem;
+        margin-top: 0.5rem;
+        background: #222;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        letter-spacing: 0.03em;
+    }
+
+    .btn-confirmar:hover {
+        background: #444;
+    }
+
+    .nota-simulacion {
+        font-size: 0.75rem;
+        color: #bbb;
+        text-align: center;
+        margin-top: 0.6rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<p class="pagina-titulo">Pago</p>
+<p class="pagina-subtitulo">Revisa tu pedido e ingresa los datos de pago.</p>
+
+<div class="pago-grid">
+
+    <!-- Resumen del pedido -->
+    <div class="resumen">
+        <h3>Resumen</h3>
+
+        {% for item in items %}
+        <div class="resumen-item">
+            <span>{{ item.nombre }} x{{ item.cantidad_carrito }}</span>
+            <span>${{ "%.2f"|format(item.precio * item.cantidad_carrito) }}</span>
+        </div>
+        {% endfor %}
+
+        <div style="margin-top: 1rem;">
+            <div class="resumen-fila">
+                <span>Subtotal</span>
+                <span>${{ "%.2f"|format(subtotal) }}</span>
+            </div>
+
+            <div class="resumen-fila">
+                <span>Envío</span>
+                <span>
+                    {% if envio == 0 %}
+                        <span style="color:#2e7d32;">Gratis</span>
+                    {% else %}
+                        ${{ "%.2f"|format(envio) }}
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if descuento_valor > 0 %}
+            <div class="resumen-fila descuento">
+                <span>Descuento ({{ descuento_activo }}%)</span>
+                <span>-${{ "%.2f"|format(descuento_valor) }}</span>
+            </div>
+            {% endif %}
+
+            <div class="resumen-fila total">
+                <span>Total</span>
+                <span>${{ "%.2f"|format(total) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de pago -->
+    <div class="formulario">
+        <h3>Datos de pago</h3>
+
+        <form method="POST" action="{{ url_for('pago.confirmar') }}">
+
+            <div class="campo">
+                <label>Nombre en la tarjeta</label>
+                <input type="text" name="nombre_tarjeta" placeholder="Ana García" maxlength="60">
+            </div>
+
+            <div class="campo">
+                <label>Número de tarjeta</label>
+                <input type="text" name="numero_tarjeta" placeholder="1234567812345678" maxlength="16">
+            </div>
+
+            <div class="campos-fila">
+                <div class="campo">
+                    <label>Fecha de expiración</label>
+                    <input type="text" name="expiracion" placeholder="MM/AA" maxlength="5">
+                </div>
+                <div class="campo">
+                    <label>CVV</label>
+                    <input type="text" name="cvv" placeholder="123" maxlength="4">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-confirmar">Confirmar pedido →</button>
+            <p class="nota-simulacion">Simulación — no se realizará ningún cobro real</p>
+
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,10 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from models.database import db
+from base_datos.conexion import db
 
-iniciar_sesion_bp = Blueprint("iniciar_sesion", __name__)
+sesion_bp = Blueprint("sesion", __name__)
 
-
-@iniciar_sesion_bp.route("/iniciar_sesion", methods=["GET", "POST"])
+@sesion_bp.route("/iniciar_sesion", methods=["GET", "POST"])
 def iniciar_sesion():
 
     if request.method == "GET":
@@ -15,12 +14,12 @@ def iniciar_sesion():
 
     if not correo or not contrasenia:
         flash("Debe ingresar correo y contraseña", "error")
-        return redirect(url_for("iniciar_sesion.iniciar_sesion"))
+        return redirect(url_for("sesion.iniciar_sesion"))
 
     cursor = db.cursor()
 
     sql = """
-        SELECT id, nombre, correo
+        SELECT id, nombre_completo, correo
         FROM usuarios
         WHERE correo = %s AND contrasenia = %s
     """
@@ -33,12 +32,18 @@ def iniciar_sesion():
 
     if usuario is None:
         flash("Correo o contraseña incorrectos", "error")
-        return redirect(url_for("iniciar_sesion.iniciar_sesion"))
+        return redirect(url_for("sesion.iniciar_sesion"))
 
-    session["id"]             = usuario[0]
-    session["correo"]         = usuario[1]
-    session["nombre_completo"] = usuario[2]
+    session["id"]             = usuario["id"]
+    session["correo"]         = usuario["correo"]
+    session["nombre_completo"] = usuario["nombre_completo"]
 
     flash("Inicio de sesión exitoso", "success")
 
-    return redirect(url_for("inventario"))
+    return redirect(url_for("productos.productos"))
+
+
+@sesion_bp.route("/cerrar_sesion")
+def cerrar_sesion():
+    session.clear()
+    return redirect(url_for("inicio"))

@@ -1,2 +1,6 @@
 # VARIABLES DE ENTORNO
 .env
+
+# ARCHIVOS COMPILADOS
+__pycache__/
+*.pyc

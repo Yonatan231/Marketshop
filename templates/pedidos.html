@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Pedidos{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .pagina-titulo {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 0.3rem;
+    }
+
+    .pagina-subtitulo {
+        color: #888;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Tarjeta de pedido */
+    .pedido-card {
+        background: #fff;
+        border: 1px solid #efefed;
+        border-radius: 8px;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1.2rem;
+    }
+
+    /* Encabezado del pedido */
+    .pedido-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .pedido-id {
+        font-weight: bold;
+        font-size: 0.95rem;
+        color: #222;
+    }
+
+    .pedido-fecha {
+        font-size: 0.8rem;
+        color: #aaa;
+    }
+
+    /* Badge de estado */
+    .estado {
+        display: inline-block;
+        padding: 0.25rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        letter-spacing: 0.03em;
+    }
+
+    .estado-pendiente  { background: #fff8e1; color: #f57f17; }
+    .estado-pagado     { background: #e8f5e9; color: #2e7d32; }
+    .estado-enviado    { background: #e3f2fd; color: #1565c0; }
+    .estado-entregado  { background: #efefed; color: #555;    }
+
+    /* Detalle de productos */
+    .pedido-detalle {
+        border-top: 1px solid #f5f5f3;
+        padding-top: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .detalle-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #555;
+        padding: 0.3rem 0;
+    }
+
+    /* Totales */
+    .pedido-totales {
+        border-top: 1px solid #f5f5f3;
+        padding-top: 0.8rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .total-fila {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: #777;
+    }
+
+    .total-fila.total-final {
+        font-weight: bold;
+        font-size: 0.95rem;
+        color: #222;
+        margin-top: 0.3rem;
+    }
+
+    .total-fila.descuento {
+        color: #2e7d32;
+    }
+
+    /* Sin pedidos */
+    .sin-pedidos {
+        color: #999;
+        font-size: 0.9rem;
+        padding: 2rem 0;
+    }
+
+    .link-ir {
+        display: inline-block;
+        margin-top: 0.8rem;
+        font-size: 0.85rem;
+        color: #555;
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<p class="pagina-titulo">Mis Pedidos</p>
+<p class="pagina-subtitulo">Historial de compras, del más reciente al más antiguo.</p>
+
+{% if pedidos %}
+
+    {% for pedido in pedidos %}
+    <div class="pedido-card">
+
+        <!-- Encabezado -->
+        <div class="pedido-header">
+            <div>
+                <span class="pedido-id">Pedido #{{ pedido.id }}</span>
+                <span class="pedido-fecha"> — {{ pedido.fecha_pedido.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
+            <span class="estado estado-{{ pedido.estado }}">{{ pedido.estado.upper() }}</span>
+        </div>
+
+        <!-- Productos -->
+        <div class="pedido-detalle">
+            {% for item in pedido.detalle %}
+            <div class="detalle-item">
+                <span>{{ item.nombre }} x{{ item.cantidad }}</span>
+                <span>${{ "%.2f"|format(item.precio_unitario * item.cantidad) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Totales -->
+        <div class="pedido-totales">
+            <div class="total-fila">
+                <span>Subtotal</span>
+                <span>${{ "%.2f"|format(pedido.subtotal) }}</span>
+            </div>
+
+            {% if pedido.descuento_aplicado > 0 %}
+            <div class="total-fila descuento">
+                <span>Descuento ({{ pedido.descuento_aplicado }}%)</span>
+                <span>-${{ "%.2f"|format(pedido.subtotal * pedido.descuento_aplicado / 100) }}</span>
+            </div>
+            {% endif %}
+
+            <div class="total-fila total-final">
+                <span>Total pagado</span>
+                <span>${{ "%.2f"|format(pedido.total) }}</span>
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+
+{% else %}
+    <p class="sin-pedidos">Aún no tienes pedidos.</p>
+    <a href="{{ url_for('productos.productos') }}" class="link-ir">← Ver productos</a>
+{% endif %}
+
+{% endblock %}

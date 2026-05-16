@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi Sitio{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, serif;
+            color: #222;
+            background: #fafaf8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            background: #fff;
+            border-bottom: 1px solid #e8e8e4;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+        }
+
+        .nav-logo {
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 0.02em;
+            color: #222;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-size: 0.9rem;
+            letter-spacing: 0.03em;
+        }
+
+        .nav-links a:hover {
+            color: #222;
+        }
+
+        main {
+            flex: 1;
+            max-width: 720px;
+            margin: 4rem auto;
+            padding: 0 1.5rem;
+            width: 100%;
+        }
+
+        footer {
+            background: #fff;
+            border-top: 1px solid #e8e8e4;
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .alert {
+            padding: 0.8rem 1rem;
+            border-radius: 3px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .alert-error { background: #fdecea; color: #c0392b; border: 1px solid #f5c6c2; }
+        .alert-success { background: #eafaf1; color: #1e8449; border: 1px solid #c2f0d5; }
+    </style>
+    {% block extra_styles %}{% endblock %}
+</head>
+<body>
+
+<nav>
+    <ul class="nav-links">
+
+        {% if session.get('id') %}
+            <a href="{{ url_for('productos.productos') }}" class="nav-logo">Market Shop</a>
+            <li><a href="{{ url_for('productos.productos') }}">Productos</a></li>
+            <li><a href="{{ url_for('carrito.carrito') }}">Carrito</a></li>
+            <li><a href="{{ url_for('pedidos.historial') }}">Mis Pedidos</a></li>
+            <li><a href="{{ url_for('recompensas.recompensas') }}">Recompensas</a></li>
+            <li><a href="{{ url_for('sesion.cerrar_sesion') }}">Cerrar Sesión</a></li>
+            
+        {% else %}
+            <a href="{{ url_for('inicio') }}" class="nav-logo">Market Shop</a>
+            <li><a href="{{ url_for('inicio') }}">Inicio</a></li>
+            <li><a href="{{ url_for('registro.registro') }}">Registrarse</a></li>
+            <li><a href="{{ url_for('sesion.iniciar_sesion') }}">Iniciar Sesión</a></li>
+        {% endif %}
+
+    </ul>
+</nav>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Market Shop — Todos los derechos reservados</p>
+    </footer>
+
+</body>
+</html>

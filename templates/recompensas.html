@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}Recompensas{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .pagina-titulo {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 0.3rem;
+    }
+
+    .pagina-subtitulo {
+        color: #888;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
+
+    .recompensas-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+        .recompensas-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid #efefed;
+        border-radius: 8px;
+        padding: 1.5rem;
+    }
+
+    .card h3 {
+        font-size: 1rem;
+        font-weight: bold;
+        margin-bottom: 0.4rem;
+        color: #222;
+    }
+
+    .card p {
+        font-size: 0.85rem;
+        color: #888;
+        margin-bottom: 1.2rem;
+        line-height: 1.5;
+    }
+
+    .monedas-display {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #222;
+        margin-bottom: 0.3rem;
+    }
+
+    .monedas-label {
+        font-size: 0.8rem;
+        color: #aaa;
+        margin-bottom: 1.2rem;
+    }
+
+    .descuento-activo {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        background: #f5f5f3;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        color: #555;
+        margin-bottom: 1.2rem;
+    }
+
+    .descuento-activo.tiene-descuento {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.7rem 1.4rem;
+        background: #222;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        letter-spacing: 0.03em;
+    }
+
+    .btn:hover { background: #444; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* ── Ruleta ── */
+    .roulette-frame {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+    }
+
+    /* Flecha indicadora */
+    .roulette-frame::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 18px solid #222;
+        z-index: 10;
+    }
+
+    .roulette-wrapper {
+        position: relative;
+        width: 200px;
+        height: 200px;
+    }
+
+    .roulette-wheel {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: conic-gradient(
+            #f8bbd0 0deg 60deg,
+            #fce4ec 60deg 120deg,
+            #ffe0b2 120deg 180deg,
+            #f8bbd0 180deg 240deg,
+            #fce4ec 240deg 300deg,
+            #ffe0b2 300deg 360deg
+        );
+        border: 6px solid #fff;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .roulette-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .segment {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 64px;
+        height: 64px;
+        background: rgba(255,255,255,0.92);
+        border: 2px solid #ffb6c1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d81b60;
+        font-size: 0.65rem;
+        font-weight: bold;
+        text-align: center;
+        padding: 4px;
+    }
+
+    .segment-1 { transform: translate(-50%,-50%) rotate(0deg)   translate(78px) rotate(0deg);    }
+    .segment-2 { transform: translate(-50%,-50%) rotate(60deg)  translate(78px) rotate(-60deg);  }
+    .segment-3 { transform: translate(-50%,-50%) rotate(120deg) translate(78px) rotate(-120deg); }
+    .segment-4 { transform: translate(-50%,-50%) rotate(180deg) translate(78px) rotate(-180deg); }
+    .segment-5 { transform: translate(-50%,-50%) rotate(240deg) translate(78px) rotate(-240deg); }
+    .segment-6 { transform: translate(-50%,-50%) rotate(300deg) translate(78px) rotate(-300deg); }
+
+    .roulette-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 56px;
+        height: 56px;
+        background: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: #d81b60;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 2;
+    }
+
+    .roulette-result {
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #222;
+        min-height: 1.4rem;
+        text-align: center;
+    }
+
+    .costo-giro {
+        font-size: 0.78rem;
+        color: #aaa;
+        margin-top: 0.4rem;
+        display: block;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<p class="pagina-titulo">Recompensas</p>
+<p class="pagina-subtitulo">Gana monedas y úsalas para obtener descuentos.</p>
+
+<div class="recompensas-grid">
+
+    <!-- Check-in -->
+    <div class="card">
+        <h3>Check-in Diario</h3>
+        <p>Ingresa una vez al día para obtener 10 monedas gratis.</p>
+
+        <div class="monedas-display" id="monedas-display">{{ monedas }}</div>
+        <div class="monedas-label">monedas disponibles</div>
+
+        {% if descuento_activo != "ninguno" %}
+            <div class="descuento-activo tiene-descuento">
+                Descuento activo:
+                {% if descuento_activo == "envio_gratis" %}Envío gratis
+                {% else %}{{ descuento_activo }}% de descuento{% endif %}
+            </div>
+        {% else %}
+            <div class="descuento-activo">Sin descuento activo</div>
+        {% endif %}
+
+        <br>
+
+        <form method="POST" action="{{ url_for('recompensas.checkin') }}">
+            <button type="submit" class="btn" {% if checkin_hecho %}disabled{% endif %}>
+                {% if checkin_hecho %}✓ Ya obtuviste tus monedas hoy
+                {% else %}Obtener 10 monedas{% endif %}
+            </button>
+        </form>
+    </div>
+
+    <!-- Ruleta -->
+    <div class="card">
+        <h3>Ruleta de Premios</h3>
+        <p>Gasta 5 monedas para girar y ganar un descuento.</p>
+
+        <div class="roulette-frame">
+            <div class="roulette-wrapper">
+                <div id="roulette-wheel" class="roulette-wheel"></div>
+                <div id="roulette-overlay" class="roulette-overlay">
+                    <div class="segment segment-1">10%</div>
+                    <div class="segment segment-2">25%</div>
+                    <div class="segment segment-3">50%</div>
+                    <div class="segment segment-4">75%</div>
+                    <div class="segment segment-5">Envío Gratis</div>
+                    <div class="segment segment-6">Nada</div>
+                </div>
+                <div class="roulette-center">Gira</div>
+            </div>
+
+            <div id="roulette-result" class="roulette-result"></div>
+
+            <button
+                id="btn-girar"
+                class="btn"
+                {% if monedas < 5 %}disabled{% endif %}
+            >
+                Girar ruleta
+            </button>
+            <span class="costo-giro" id="costo-label">
+                Costo: 5 monedas — tienes {{ monedas }}
+            </span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const wheel   = document.getElementById('roulette-wheel');
+    const overlay = document.getElementById('roulette-overlay');
+    const result  = document.getElementById('roulette-result');
+    const btnGirar = document.getElementById('btn-girar');
+    const monedasDisplay = document.getElementById('monedas-display');
+    const costoLabel     = document.getElementById('costo-label');
+
+    // Cuántos grados ocupa cada segmento (360 / 6 premios)
+    const SEGMENTO = 60;
+    let anguloAcumulado = 0;
+
+    btnGirar.addEventListener('click', async () => {
+        btnGirar.disabled = true;
+        result.textContent = '';
+
+        // Pedir al servidor qué premio tocó
+        const respuesta = await fetch("{{ url_for('recompensas.girar') }}", {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'fetch',
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!respuesta.ok) {
+            const data = await respuesta.json();
+            result.textContent = data.error || 'Error al girar';
+            btnGirar.disabled = false;
+            return;
+        }
+
+        const data = await respuesta.json();
+
+        // Calcular ángulo para que la flecha apunte al premio
+        const anguloSegmento = SEGMENTO * data.premio_index + (SEGMENTO / 2);
+        const anguloFinal    = anguloAcumulado + (360 * 6) + (360 - anguloSegmento);
+        anguloAcumulado      = anguloFinal;
+
+        // Animar ruleta
+        wheel.style.transition   = 'transform 2.2s ease-out';
+        overlay.style.transition = 'transform 2.2s ease-out';
+        wheel.style.transform    = `rotate(${anguloFinal}deg)`;
+        overlay.style.transform  = `rotate(${anguloFinal}deg)`;
+
+        // Mostrar resultado después de la animación
+        setTimeout(() => {
+            result.textContent = `¡Obtuviste: ${data.label}!`;
+
+            // Actualizar monedas en pantalla
+            monedasDisplay.textContent = data.monedas;
+            costoLabel.textContent     = `Costo: 5 monedas — tienes ${data.monedas}`;
+
+            // Deshabilitar si ya no alcanza
+            btnGirar.disabled = data.monedas < 5;
+        }, 2300);
+    });
+</script>
+
+{% endblock %}
