@@ -212,7 +212,6 @@
 
 <div class="recompensas-grid">
 
-    <!-- Check-in -->
     <div class="card">
         <h3>Check-in Diario</h3>
         <p>Ingresa una vez al día para obtener 10 monedas gratis.</p>
@@ -240,7 +239,6 @@
         </form>
     </div>
 
-    <!-- Ruleta -->
     <div class="card">
         <h3>Ruleta de Premios</h3>
         <p>Gasta 5 monedas para girar y ganar un descuento.</p>
@@ -284,7 +282,6 @@
     const monedasDisplay = document.getElementById('monedas-display');
     const costoLabel     = document.getElementById('costo-label');
 
-    // Cuántos grados ocupa cada segmento (360 / 6 premios)
     const SEGMENTO = 60;
     let anguloAcumulado = 0;
 
@@ -292,45 +289,40 @@
         btnGirar.disabled = true;
         result.textContent = '';
 
-        // Pedir al servidor qué premio tocó
-        const respuesta = await fetch("{{ url_for('recompensas.girar') }}", {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'fetch',
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!respuesta.ok) {
-            const data = await respuesta.json();
-            result.textContent = data.error || 'Error al girar';
-            btnGirar.disabled = false;
-            return;
+    const respuesta = await fetch("{{ url_for('recompensas.girar') }}", {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'fetch',
+            'Content-Type': 'application/json'
         }
+    });
 
+    if (!respuesta.ok) {
         const data = await respuesta.json();
+        result.textContent = data.error || 'Error al girar';
+        btnGirar.disabled = false;
+        return;
+    }
 
-        // Calcular ángulo para que la flecha apunte al premio
-        const anguloSegmento = SEGMENTO * data.premio_index + (SEGMENTO / 2);
-        const anguloFinal    = anguloAcumulado + (360 * 6) + (360 - anguloSegmento);
-        anguloAcumulado      = anguloFinal;
+    const data = await respuesta.json();
 
-        // Animar ruleta
-        wheel.style.transition   = 'transform 2.2s ease-out';
-        overlay.style.transition = 'transform 2.2s ease-out';
-        wheel.style.transform    = `rotate(${anguloFinal}deg)`;
-        overlay.style.transform  = `rotate(${anguloFinal}deg)`;
+    const anguloActual   = anguloAcumulado % 360;
+    const anguloDestino  = 360 - (SEGMENTO * data.premio_index) + (SEGMENTO / 2);
+    const diferencia     = (anguloDestino - anguloActual + 360) % 360;
+    const anguloFinal    = anguloAcumulado + (360 * 5) + diferencia;
 
-        // Mostrar resultado después de la animación
-        setTimeout(() => {
-            result.textContent = `¡Obtuviste: ${data.label}!`;
+    anguloAcumulado = anguloFinal;
 
-            // Actualizar monedas en pantalla
-            monedasDisplay.textContent = data.monedas;
-            costoLabel.textContent     = `Costo: 5 monedas — tienes ${data.monedas}`;
+    wheel.style.transition   = 'transform 2.2s ease-out';
+    overlay.style.transition = 'transform 2.2s ease-out';
+    wheel.style.transform    = `rotate(${anguloFinal}deg)`;
+    overlay.style.transform  = `rotate(${anguloFinal}deg)`;
 
-            // Deshabilitar si ya no alcanza
-            btnGirar.disabled = data.monedas < 5;
+    setTimeout(() => {
+        result.textContent = `¡Obtuviste: ${data.label}!`;
+        monedasDisplay.textContent = data.monedas;
+        costoLabel.textContent     = `Costo: 5 monedas — tienes ${data.monedas}`;
+        btnGirar.disabled = data.monedas < 5;
         }, 2300);
     });
 </script>

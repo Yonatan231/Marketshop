@@ -6,12 +6,12 @@ import random
 recompensas_bp = Blueprint("recompensas", __name__)
 
 PREMIOS = [
-    { "label": "10% Descuento", "valor": "10"},
-    { "label": "25% Descuento", "valor": "25"},
-    { "label": "50% Descuento", "valor": "50"},
-    { "label": "75% Descuento", "valor": "75"},
-    { "label": "Envío Gratis", "valor": "envio_gratis"},
-    { "label": "Nada", "valor": "ninguno"},
+    { "label": "Envío Gratis",   "valor": "envio_gratis"}, 
+    { "label": "Nada",           "valor": "ninguno"},  
+    { "label": "10% Descuento",  "valor": "10"},  
+    { "label": "25% Descuento",  "valor": "25"},   
+    { "label": "50% Descuento",  "valor": "50"}, 
+    { "label": "75% Descuento",  "valor": "75"},        
 ]
 
 
