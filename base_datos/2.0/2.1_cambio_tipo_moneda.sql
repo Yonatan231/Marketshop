@@ -1,0 +1,2 @@
+ALTER TABLE usuarios
+ALTER COLUMN monedas INT DEFAULT 0; 

@@ -22,7 +22,7 @@ Aplicación web de e-commerce para maquillaje y zapatos, construida con Python y
 Marketshop/
 ├── base_datos/
 │   ├── conexion.py          # Conexión a la base de datos
-│   └── script.sql           # Script para crear la base de datos
+│   └── 2.0, 3.0...          # Versiones y cambios de la base de datos
 ├── routes/                  # Un archivo por sección (Blueprints)
 ├── static/
 │   └── imagenes/            # Imágenes de los productos
