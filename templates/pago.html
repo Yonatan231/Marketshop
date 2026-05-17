@@ -22,10 +22,6 @@
         gap: 2rem;
     }
 
-    @media (max-width: 600px) {
-        .pago-grid { grid-template-columns: 1fr; }
-    }
-
     /* Resumen */
     .resumen {
         background: #fff;
@@ -132,7 +128,6 @@
         border: none;
         border-radius: 6px;
         font-size: 0.95rem;
-        cursor: pointer;
         letter-spacing: 0.03em;
     }
 
@@ -140,12 +135,6 @@
         background: #444;
     }
 
-    .nota-simulacion {
-        font-size: 0.75rem;
-        color: #bbb;
-        text-align: center;
-        margin-top: 0.6rem;
-    }
 </style>
 {% endblock %}
 
@@ -206,27 +195,30 @@
 
             <div class="campo">
                 <label>Nombre en la tarjeta</label>
-                <input type="text" name="nombre_tarjeta" placeholder="Ana García" maxlength="60">
+                <input type="text" name="nombre_tarjeta" placeholder="Ana García" maxlength="60"
+                       value="{{ form_data.nombre_tarjeta if form_data else '' }}" required>
             </div>
 
             <div class="campo">
                 <label>Número de tarjeta</label>
-                <input type="text" name="numero_tarjeta" placeholder="1234567812345678" maxlength="16">
+                <input type="text" name="numero_tarjeta" placeholder="1234567812345678" maxlength="16"
+                       value="{{ form_data.numero_tarjeta if form_data else '' }}" required>
             </div>
 
             <div class="campos-fila">
                 <div class="campo">
                     <label>Fecha de expiración</label>
-                    <input type="text" name="expiracion" placeholder="MM/AA" maxlength="5">
+                    <input type="text" name="expiracion" placeholder="MM/AA" maxlength="5"
+                           value="{{ form_data.expiracion if form_data else '' }}" required>
                 </div>
                 <div class="campo">
                     <label>CVV</label>
-                    <input type="text" name="cvv" placeholder="123" maxlength="4">
+                    <input type="text" name="cvv" placeholder="123" maxlength="4"
+                           value="{{ form_data.cvv if form_data else '' }}" required>
                 </div>
             </div>
 
-            <button type="submit" class="btn-confirmar">Confirmar pedido →</button>
-            <p class="nota-simulacion">Simulación — no se realizará ningún cobro real</p>
+            <button type="submit" class="btn-confirmar">Confirmar pedido</button>
 
         </form>
     </div>

@@ -45,7 +45,7 @@ def agregar():
     db.commit()
     cursor.close()
 
-    flash("Producto agregado al carrito ✓", "success")
+    flash("Producto agregado al carrito", "success")
     return redirect(url_for("productos.productos"))
 
 

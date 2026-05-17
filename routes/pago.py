@@ -36,7 +36,6 @@ def pago():
 
     cursor = db.cursor()
 
-    # Traer items del carrito
     cursor.execute("""
         SELECT
             c.cantidad    AS cantidad_carrito,
@@ -54,14 +53,12 @@ def pago():
         cursor.close()
         return redirect(url_for("carrito.carrito"))
 
-    # Verificar que todos los items tienen stock suficiente
     sin_stock = [i for i in items if i["cantidad_carrito"] > i["stock"]]
     if sin_stock:
         flash("Algunos productos ya no tienen stock suficiente", "error")
         cursor.close()
         return redirect(url_for("carrito.carrito"))
 
-    # Traer descuento activo del usuario
     cursor.execute(
         "SELECT descuento_activo FROM usuarios WHERE id = %s",
         (session["id"],)
@@ -74,12 +71,13 @@ def pago():
     envio, descuento_valor, total = calcular_total(subtotal, descuento_activo)
 
     return render_template("pago.html",
-        items=items,
-        subtotal=subtotal,
-        envio=envio,
-        descuento_activo=descuento_activo,
-        descuento_valor=descuento_valor,
-        total=total
+        items            = items,
+        subtotal         = subtotal,
+        envio            = envio,
+        descuento_activo = descuento_activo,
+        descuento_valor  = descuento_valor,
+        total            = total,
+        form_data        = None
     )
 
 
@@ -88,13 +86,11 @@ def confirmar():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))
 
-    # Datos del formulario
     nombre_tarjeta = request.form.get("nombre_tarjeta", "").strip()
     numero_tarjeta = request.form.get("numero_tarjeta", "").strip()
     expiracion     = request.form.get("expiracion", "").strip()
     cvv            = request.form.get("cvv", "").strip()
 
-    # Validaciones de formato
     errores = []
 
     if not nombre_tarjeta:
@@ -116,12 +112,44 @@ def confirmar():
     if errores:
         for e in errores:
             flash(e, "error")
-        return redirect(url_for("pago.pago"))
+
+        cursor = db.cursor()
+        cursor.execute("""
+            SELECT
+                c.cantidad    AS cantidad_carrito,
+                p.nombre,
+                p.precio,
+                p.cantidad    AS stock
+            FROM carrito c
+            JOIN productos p ON c.id_producto = p.id
+            WHERE c.id_usuario = %s
+        """, (session["id"],))
+        items = cursor.fetchall()
+
+        cursor.execute(
+            "SELECT descuento_activo FROM usuarios WHERE id = %s",
+            (session["id"],)
+        )
+        usuario = cursor.fetchone()
+        cursor.close()
+
+        descuento_activo = usuario["descuento_activo"] or "ninguno"
+        subtotal = sum(i["precio"] * i["cantidad_carrito"] for i in items)
+        envio, descuento_valor, total = calcular_total(subtotal, descuento_activo)
+
+        return render_template("pago.html",
+            items            = items,
+            subtotal         = subtotal,
+            envio            = envio,
+            descuento_activo = descuento_activo,
+            descuento_valor  = descuento_valor,
+            total            = total,
+            form_data        = request.form
+        )
 
     # Todo válido — procesar pedido
     cursor = db.cursor()
 
-    # Traer carrito
     cursor.execute("""
         SELECT
             c.id_producto,
@@ -139,7 +167,6 @@ def confirmar():
         cursor.close()
         return redirect(url_for("carrito.carrito"))
 
-    # Traer descuento activo
     cursor.execute(
         "SELECT descuento_activo FROM usuarios WHERE id = %s",
         (session["id"],)
@@ -150,15 +177,11 @@ def confirmar():
     subtotal = sum(i["precio"] * i["cantidad_carrito"] for i in items)
     envio, descuento_valor, total = calcular_total(subtotal, descuento_activo)
 
-    # Guardar el numero del descuento para la BD (solo el numero o 0)
-    if descuento_activo == "envio_gratis":
-        descuento_bd = 0
-    elif descuento_activo == "ninguno":
+    if descuento_activo in ("envio_gratis", "ninguno"):
         descuento_bd = 0
     else:
         descuento_bd = int(descuento_activo)
 
-    # Insertar pedido
     cursor.execute("""
         INSERT INTO pedidos (id_usuario, subtotal, descuento_aplicado, total)
         VALUES (%s, %s, %s, %s)
@@ -166,7 +189,6 @@ def confirmar():
 
     id_pedido = cursor.lastrowid
 
-    # Insertar detalle y descontar stock
     for item in items:
         cursor.execute("""
             INSERT INTO detalle_pedido (id_pedido, id_producto, cantidad, precio_unitario)
@@ -177,7 +199,6 @@ def confirmar():
             UPDATE productos SET cantidad = cantidad - %s WHERE id = %s
         """, (item["cantidad_carrito"], item["id_producto"]))
 
-    # Limpiar carrito y resetear descuento
     cursor.execute("DELETE FROM carrito WHERE id_usuario = %s", (session["id"],))
     cursor.execute(
         "UPDATE usuarios SET descuento_activo = 'ninguno' WHERE id = %s",
