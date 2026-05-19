@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, flash
 from base_datos.conexion import db
 from datetime import datetime
 from base_datos.configuracion import get_configuracion_int
+from utils.verificar_rol_cliente import solo_cliente
 
 pedidos_bp = Blueprint("pedidos", __name__)
 
@@ -27,6 +28,7 @@ def actualizar_estado(cursor, pedido_id, fecha_pedido):
 
 
 @pedidos_bp.route("/pedidos")
+@solo_cliente
 def historial():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))

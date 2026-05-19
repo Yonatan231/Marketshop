@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, flash,
 from base_datos.conexion import db
 from decimal import Decimal
 from base_datos.configuracion import get_configuracion_float
+from utils.verificar_rol_cliente import solo_cliente
 
 pago_bp = Blueprint("pago", __name__)
 
@@ -30,6 +31,7 @@ def calcular_total(subtotal, descuento_activo):
 
 
 @pago_bp.route("/pago")
+@solo_cliente
 def pago():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))
@@ -82,6 +84,7 @@ def pago():
 
 
 @pago_bp.route("/pago/confirmar", methods=["POST"])
+@solo_cliente
 def confirmar():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))

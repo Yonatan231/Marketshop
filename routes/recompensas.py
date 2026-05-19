@@ -4,11 +4,13 @@ from datetime import datetime
 import random
 from base_datos.configuracion import get_configuracion_int
 from base_datos.configuracion import get_configuracion_int, get_configuracion
+from utils.verificar_rol_cliente import solo_cliente
 
 recompensas_bp = Blueprint("recompensas", __name__)
 
 
 @recompensas_bp.route("/recompensas")
+@solo_cliente
 def recompensas():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))
@@ -45,6 +47,7 @@ def recompensas():
 
 
 @recompensas_bp.route("/recompensas/checkin", methods=["POST"])
+@solo_cliente
 def checkin():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))
@@ -81,6 +84,7 @@ def checkin():
 
 
 @recompensas_bp.route("/recompensas/girar", methods=["POST"])
+@solo_cliente
 def girar():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))

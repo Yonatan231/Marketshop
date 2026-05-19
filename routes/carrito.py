@@ -1,10 +1,12 @@
 from flask import Blueprint, redirect, url_for, session, flash, request, render_template
 from base_datos.conexion import db
+from utils.verificar_rol_cliente import solo_cliente
 
 carrito_bp = Blueprint("carrito", __name__)
 
 
 @carrito_bp.route("/carrito/agregar", methods=["POST"])
+@solo_cliente
 def agregar():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))
@@ -50,6 +52,7 @@ def agregar():
 
 
 @carrito_bp.route("/carrito")
+@solo_cliente
 def carrito():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))
@@ -81,6 +84,7 @@ def carrito():
 
 
 @carrito_bp.route("/carrito/cambiar_cantidad", methods=["POST"])
+@solo_cliente
 def cambiar_cantidad():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))
@@ -129,6 +133,7 @@ def cambiar_cantidad():
 
 
 @carrito_bp.route("/carrito/eliminar", methods=["POST"])
+@solo_cliente
 def eliminar():
     if not session.get("id"):
         return redirect(url_for("sesion.iniciar_sesion"))
