@@ -1,0 +1,1 @@
+ALTER TABLE pedidos MODIFY estado ENUM('pendiente', 'pagado', 'enviado', 'entregado') DEFAULT 'pendiente';

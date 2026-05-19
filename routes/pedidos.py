@@ -5,22 +5,25 @@ from base_datos.configuracion import get_configuracion_int
 
 pedidos_bp = Blueprint("pedidos", __name__)
 
-def calcular_estado(fecha_pedido):
+def actualizar_estado(cursor, pedido_id, fecha_pedido):
     ahora   = datetime.now()
     minutos = (ahora - fecha_pedido).total_seconds() / 60
 
-    t_pagado     = get_configuracion_int("pedido_minutos_pagado")
-    t_enviado    = get_configuracion_int("pedido_minutos_enviado")
-    t_entregado  = get_configuracion_int("pedido_minutos_entregado")
+    t_pagado    = get_configuracion_int("pedido_minutos_pagado")
+    t_enviado   = get_configuracion_int("pedido_minutos_enviado")
+    t_entregado = get_configuracion_int("pedido_minutos_entregado")
 
     if minutos < t_pagado:
-        return "pendiente"
+        estado = "pendiente"
     elif minutos < t_enviado:
-        return "pagado"
+        estado = "pagado"
     elif minutos < t_entregado:
-        return "enviado"
+        estado = "enviado"
     else:
-        return "entregado"
+        estado = "entregado"
+
+    cursor.execute("UPDATE pedidos SET estado = %s WHERE id = %s", (estado, pedido_id))
+    return estado
 
 
 @pedidos_bp.route("/pedidos")
@@ -29,32 +32,25 @@ def historial():
         return redirect(url_for("sesion.iniciar_sesion"))
 
     cursor = db.cursor()
-
-    # Traer pedidos del usuario, del más reciente al más antiguo
     cursor.execute("""
-        SELECT id, subtotal, descuento_aplicado, total, fecha_pedido
+        SELECT id, subtotal, descuento_aplicado, total, fecha_pedido, estado
         FROM pedidos
         WHERE id_usuario = %s
         ORDER BY fecha_pedido DESC
     """, (session["id"],))
-
     pedidos = cursor.fetchall()
 
-    # Traer el detalle de cada pedido
     for pedido in pedidos:
         cursor.execute("""
-            SELECT
-                p.nombre,
-                d.cantidad,
-                d.precio_unitario
+            SELECT p.nombre, d.cantidad, d.precio_unitario
             FROM detalle_pedido d
             JOIN productos p ON d.id_producto = p.id
             WHERE d.id_pedido = %s
         """, (pedido["id"],))
-
         pedido["detalle"] = cursor.fetchall()
-        pedido["estado"]  = calcular_estado(pedido["fecha_pedido"])
+        pedido["estado"]  = actualizar_estado(cursor, pedido["id"], pedido["fecha_pedido"])
 
+    db.commit()
     cursor.close()
 
     return render_template("pedidos.html", pedidos=pedidos)
