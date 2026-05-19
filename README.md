@@ -8,7 +8,10 @@ Aplicación web de e-commerce para maquillaje y zapatos, construida con Python y
 - Catálogo de productos disponibles.
 - Carrito de compras con simulación de pago con tarjeta.
 - Historial de pedidos con estados simulados (el estado cambia automáticamente con el tiempo), ordenados del más reciente al más antiguo.
-- Recompensas gamificadas: check-in diario y ruleta de premios.
+- Recompensas gamificadas: check-in cada x tiempo y ruleta de premios.
+- Activar/desactivar cuentas.
+- Los valores (descuentos, tiempo en cambiar a x estado, costo de la ruleta, valor envio, frecuencia del chec-in y numero de monedas dadas en cada check-in) se pueden modificar con el rol administrador.
+- CRUD de productos.
 
 ## Tecnologías
 
@@ -21,15 +24,19 @@ Aplicación web de e-commerce para maquillaje y zapatos, construida con Python y
 ```text
 Marketshop/
 ├── base_datos/
+│   ├── 2.0, 3.0...          # Versiones y cambios de la base de datos
 │   ├── conexion.py          # Conexión a la base de datos
-│   └── 2.0, 3.0...          # Versiones y cambios de la base de datos
+│   └── configuracion.py     # Archivo que permite obtener los valores de configuración almacenados en la base de datos
 ├── routes/                  # Un archivo por sección (Blueprints)
 ├── static/
-│   └── imagenes/            # Imágenes de los productos
+│   └── imagenes/            
+│       └── productos/       # Imágenes de los productos
+│       └── sistema/         # Imágenes de generales (fondos, logo..)
 ├── templates/
 │   ├── base.html            # Plantilla base
 │   └── *.html               # Vistas de cada sección
 ├── .env                     # Variables de entorno (no se sube al repo)
+├── utils                    # Funciones reutilizables
 ├── app.py                   # Punto de entrada, configuración de Flask
 └── requirements.txt         # Dependencias
 ```
