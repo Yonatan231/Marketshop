@@ -19,7 +19,7 @@ def iniciar_sesion():
     cursor = db.cursor()
 
     sql = """
-        SELECT id, nombre_completo, correo
+        SELECT id, nombre_completo, correo, rol, estado
         FROM usuarios
         WHERE correo = %s AND contrasenia = %s
     """
@@ -34,14 +34,20 @@ def iniciar_sesion():
         flash("Correo o contraseña incorrectos", "error")
         return redirect(url_for("sesion.iniciar_sesion"))
 
+    if not usuario["estado"]:
+        flash("Tu cuenta está desactivada. Contacta al administrador.", "error")
+        return redirect(url_for("sesion.iniciar_sesion"))
+
     session["id"]             = usuario["id"]
     session["correo"]         = usuario["correo"]
     session["nombre_completo"] = usuario["nombre_completo"]
-
+    session["rol"]            = usuario["rol"]
     flash("Inicio de sesión exitoso", "success")
 
-    return redirect(url_for("productos.productos"))
-
+    if usuario["rol"] == "administrador":
+        return redirect(url_for("administrador.panel"))
+    else:
+        return redirect(url_for("productos.productos"))
 
 @sesion_bp.route("/cerrar_sesion")
 def cerrar_sesion():

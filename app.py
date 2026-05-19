@@ -8,6 +8,7 @@ from routes.carrito import carrito_bp
 from routes.pago import pago_bp
 from routes.pedidos import pedidos_bp
 from routes.recompensas import recompensas_bp
+from routes.administrador import administrador_bp
 
 load_dotenv()
 
@@ -22,6 +23,7 @@ app.register_blueprint(carrito_bp)
 app.register_blueprint(pago_bp)
 app.register_blueprint(pedidos_bp)
 app.register_blueprint(recompensas_bp)
+app.register_blueprint(administrador_bp)
 
 @app.route('/')
 def inicio():

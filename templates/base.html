@@ -57,7 +57,7 @@
 
         main {
             flex: 1;
-            max-width: 720px;
+            max-width: 1300px;
             margin: 4rem auto;
             padding: 0 1.5rem;
             width: 100%;
@@ -89,13 +89,20 @@
     <ul class="nav-links">
 
         {% if session.get('id') %}
-            <a href="{{ url_for('productos.productos') }}" class="nav-logo">Market Shop</a>
-            <li><a href="{{ url_for('productos.productos') }}">Productos</a></li>
-            <li><a href="{{ url_for('carrito.carrito') }}">Carrito</a></li>
-            <li><a href="{{ url_for('pedidos.historial') }}">Mis Pedidos</a></li>
-            <li><a href="{{ url_for('recompensas.recompensas') }}">Recompensas</a></li>
-            <li><a href="#" onclick="document.getElementById('modal-cerrar-sesion').style.display='flex'">Cerrar Sesión</a></li>
-            
+            {% if session.get('rol') == 'administrador' %}
+                <a href="{{ url_for('administrador.panel') }}" class="nav-logo">Market Shop</a>
+                <li><a href="{{ url_for('administrador.panel') }}">Panel</a></li>
+                <li><a href="{{ url_for('administrador.usuarios') }}">Usuarios</a></li>
+                <li><a href="#" onclick="document.getElementById('modal-cerrar-sesion').style.display='flex'">Cerrar Sesión</a></li>
+                {% else %}
+                <a href="{{ url_for('productos.productos') }}" class="nav-logo">Market Shop</a>
+                <li><a href="{{ url_for('productos.productos') }}">Productos</a></li>
+                <li><a href="{{ url_for('carrito.carrito') }}">Carrito</a></li>
+                <li><a href="{{ url_for('pedidos.historial') }}">Mis Pedidos</a></li>
+                <li><a href="{{ url_for('recompensas.recompensas') }}">Recompensas</a></li>
+                <li><a href="#" onclick="document.getElementById('modal-cerrar-sesion').style.display='flex'">Cerrar Sesión</a></li>
+            {% endif %}
+
         {% else %}
             <a href="{{ url_for('inicio') }}" class="nav-logo">Market Shop</a>
             <li><a href="{{ url_for('inicio') }}">Inicio</a></li>
