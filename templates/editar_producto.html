@@ -72,7 +72,7 @@
     <div class="form-group">
         <label>Imagen</label>
         {% if producto and producto.imagen_url %}
-            <img src="{{ url_for('static', filename='imagenes/' + producto.imagen_url) }}" class="preview-img"><br>
+            <img src="{{ url_for('static', filename='imagenes/productos/' + producto.imagen_url) }}" class="preview-img"><br>
             <small style="color:#999;">Sube una nueva imagen solo si deseas reemplazarla</small>
         {% endif %}
         <input type="file" name="imagen" accept=".jpg,.jpeg,.png,.webp" {% if not producto %}required{% endif %}>

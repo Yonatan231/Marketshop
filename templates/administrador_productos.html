@@ -85,7 +85,7 @@
             {% for p in productos %}
             <tr>
                 <td>{{ p.id }}</td>
-                <td><img src="{{ url_for('static', filename='imagenes/' + p.imagen_url) }}" class="producto-img" alt="{{ p.nombre }}"></td>
+                <td><img src="{{ url_for('static', filename='imagenes/productos/' + p.imagen_url) }}" class="producto-img" alt="{{ p.nombre }}"></td>
                 <td>{{ p.nombre }}</td>
                 <td>{{ p.categoria }}</td>
                 <td>${{ p.precio }}</td>

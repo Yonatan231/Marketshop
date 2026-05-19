@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, flash,
 from base_datos.conexion import db
 import os
 from werkzeug.utils import secure_filename
+from base_datos.configuracion import get_configuracion, get_configuracion_float, get_configuracion_int
 
 administrador_bp = Blueprint("administrador", __name__)
 
@@ -46,7 +47,7 @@ def cambiar_estado(id):
 
 
 # CRUD de productos
-CARPETA_IMAGENES = os.path.join("static", "imagenes")
+CARPETA_IMAGENES = os.path.join("static", "imagenes", "productos")
 EXTENSIONES_PERMITIDAS = {"jpg", "jpeg", "png", "webp"}
 
 def extension_permitida(filename):
@@ -169,3 +170,91 @@ def cambiar_estado_producto(id):
     cursor.close()
     flash("Estado actualizado", "success")
     return redirect(url_for("administrador.productos"))
+
+# Configuración de descuentos, recompensas y tiempos de pedidos
+@administrador_bp.route("/administrador/configuracion/descuentos", methods=["GET", "POST"])
+def configuracion_descuentos():
+    if administrador_inicio(): return administrador_inicio()
+
+    if request.method == "POST":
+        campos = ["primer_descuento", "segundo_descuento", "tercer_descuento", "cuarto_descuento"]
+        for campo in campos:
+            valor = request.form.get(campo, "").strip()
+            try:
+                valor_num = float(valor)
+            except ValueError:
+                flash(f"{campo} debe ser un número", "error")
+                return redirect(url_for("administrador.configuracion_descuentos"))
+            if valor_num < 0 or valor_num > 100:
+                flash("Los descuentos deben estar entre 0 y 100", "error")
+                return redirect(url_for("administrador.configuracion_descuentos"))
+            cursor = db.cursor()
+            cursor.execute("UPDATE configuracion SET valor = %s WHERE nombre = %s", (valor, campo))
+            db.commit()
+            cursor.close()
+        flash("Descuentos actualizados", "success")
+        return redirect(url_for("administrador.configuracion_descuentos"))
+
+    valores = {
+        "primer_descuento" : get_configuracion("primer_descuento"),
+        "segundo_descuento": get_configuracion("segundo_descuento"),
+        "tercer_descuento" : get_configuracion("tercer_descuento"),
+        "cuarto_descuento" : get_configuracion("cuarto_descuento"),
+    }
+    return render_template("configuracion_descuentos.html", valores=valores)
+
+
+@administrador_bp.route("/administrador/configuracion/pedidos", methods=["GET", "POST"])
+def configuracion_pedidos():
+    if administrador_inicio(): return administrador_inicio()
+
+    campos = ["pedido_minutos_pagado", "pedido_minutos_enviado", "pedido_minutos_entregado", "pedido_valor_envio"]
+
+    if request.method == "POST":
+        for campo in campos:
+            valor = request.form.get(campo, "").strip()
+            try:
+                valor_num = float(valor)
+            except ValueError:
+                flash(f"{campo} debe ser un número", "error")   
+                return redirect(url_for("administrador.configuracion_pedidos"))
+            if valor_num < 0:
+                flash("Los valores no pueden ser negativos", "error")
+                return redirect(url_for("administrador.configuracion_pedidos"))
+            cursor = db.cursor()
+            cursor.execute("UPDATE configuracion SET valor = %s WHERE nombre = %s", (valor, campo))
+            db.commit()
+            cursor.close()
+        flash("Configuración de pedidos actualizada", "success")
+        return redirect(url_for("administrador.configuracion_pedidos"))
+
+    valores = {c: get_configuracion(c) for c in campos}
+    return render_template("configuracion_pedidos.html", valores=valores)
+
+
+@administrador_bp.route("/administrador/configuracion/recompensas", methods=["GET", "POST"])
+def configuracion_recompensas():
+    if administrador_inicio(): return administrador_inicio()
+
+    campos = ["recompensa_monedas_checkin", "costo_ruleta", "recompensa_frecuencia_minutos"]
+
+    if request.method == "POST":
+        for campo in campos:
+            valor = request.form.get(campo, "").strip()
+            try:
+                valor_num = float(valor)
+            except ValueError:
+                flash(f"{campo} debe ser un número", "error")
+                return redirect(url_for("administrador.configuracion_recompensas"))
+            if valor_num < 0:
+                flash("Los valores no pueden ser negativos", "error")
+                return redirect(url_for("administrador.configuracion_recompensas"))
+            cursor = db.cursor()
+            cursor.execute("UPDATE configuracion SET valor = %s WHERE nombre = %s", (valor, campo))
+            db.commit()
+            cursor.close()
+        flash("Configuración de recompensas actualizada", "success")
+        return redirect(url_for("administrador.configuracion_recompensas"))
+
+    valores = {c: get_configuracion(c) for c in campos}
+    return render_template("configuracion_recompensas.html", valores=valores)

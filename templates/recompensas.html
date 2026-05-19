@@ -209,7 +209,7 @@
 
     <div class="card">
         <h3>Check-in Diario</h3>
-        <p>Ingresa una vez al día para obtener 10 monedas gratis.</p>
+        <p>Ingresa una vez al día para obtener  monedas gratis.</p>
 
         <div class="monedas-display" id="monedas-display">{{ monedas }}</div>
         <div class="monedas-label">monedas disponibles</div>
@@ -228,24 +228,24 @@
 
         <form method="POST" action="{{ url_for('recompensas.checkin') }}">
             <button type="submit" class="btn" {% if checkin_hecho %}disabled{% endif %}>
-                {% if checkin_hecho %} Ya obtuviste tus monedas hoy
-                {% else %}Obtener 10 monedas{% endif %}
+                {% if checkin_hecho %} Ya obtuviste tus monedas.
+                {% else %}Obtener {{ monedas_checkin }} monedas{% endif %}
             </button>
         </form>
     </div>
 
     <div class="card">
         <h3>Ruleta de Premios</h3>
-        <p>Gasta 5 monedas para girar y ganar un descuento.</p>
+        <p>Gasta {{ costo_ruleta }} monedas para girar y ganar un descuento.</p>
 
         <div class="roulette-frame">
             <div class="roulette-wrapper">
                 <div id="roulette-wheel" class="roulette-wheel"></div>
                 <div id="roulette-overlay" class="roulette-overlay">
-                    <div class="segment segment-1">10%</div>
-                    <div class="segment segment-2">25%</div>
-                    <div class="segment segment-3">50%</div>
-                    <div class="segment segment-4">75%</div>
+                    <div class="segment segment-1">{{ descuentos.primer_descuento }}%</div>
+                    <div class="segment segment-2">{{ descuentos.segundo_descuento }}%</div>
+                    <div class="segment segment-3">{{ descuentos.tercer_descuento }}%</div>
+                    <div class="segment segment-4">{{ descuentos.cuarto_descuento }}%</div>
                     <div class="segment segment-5">Envío Gratis</div>
                     <div class="segment segment-6">Nada</div>
                 </div>
@@ -257,12 +257,12 @@
             <button
                 id="btn-girar"
                 class="btn"
-                {% if monedas < 5 %}disabled{% endif %}
+                {% if monedas < costo_ruleta %}disabled{% endif %}
             >
                 Girar ruleta
             </button>
             <span class="costo-giro" id="costo-label">
-                Costo: 5 monedas — tienes {{ monedas }}
+                Costo: {{ costo_ruleta }} monedas — tienes {{ monedas }}
             </span>
         </div>
     </div>
@@ -316,8 +316,20 @@
     setTimeout(() => {
         result.textContent = `¡Obtuviste: ${data.label}!`;
         monedasDisplay.textContent = data.monedas;
-        costoLabel.textContent     = `Costo: 5 monedas — tienes ${data.monedas}`;
-        btnGirar.disabled = data.monedas < 5;
+        costoLabel.textContent     = `Costo: {{ costo_ruleta }} monedas — tienes ${data.monedas}`;
+        btnGirar.disabled = data.monedas < {{ costo_ruleta }};
+        
+        const descuentoEl = document.querySelector('.descuento-activo');
+            if (data.valor === 'ninguno') {
+                descuentoEl.className = 'descuento-activo';
+                descuentoEl.textContent = 'Sin descuento activo';
+            } else if (data.valor === 'envio_gratis') {
+                descuentoEl.className = 'descuento-activo tiene-descuento';
+                descuentoEl.textContent = 'Descuento activo: Envío gratis';
+            } else {
+                descuentoEl.className = 'descuento-activo tiene-descuento';
+                descuentoEl.textContent = `Descuento activo: ${data.valor}% de descuento`;
+            }
         }, 2300);
     });
 </script>

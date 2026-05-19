@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Configuración Recompensas{% endblock %}
+{% block extra_styles %}
+<style>
+    .form-group { margin-bottom: 1.2rem; }
+    label { display: block; font-size: 0.85rem; margin-bottom: 0.4rem; color: #555; }
+    input { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #ddd; border-radius: 3px; font-family: Georgia, serif; font-size: 0.9rem; }
+    .hint { font-size: 0.78rem; color: #999; margin-top: 0.3rem; }
+    .btn { padding: 0.6rem 1.2rem; border-radius: 3px; font-family: Georgia, serif; font-size: 0.9rem; cursor: pointer; text-decoration: none; border: none; }
+    .btn-dark { background: #222; color: #fff; }
+    .btn-light { background: #eee; color: #222; }
+    .acciones { display: flex; gap: 1rem; margin-top: 1.5rem; }
+</style>
+{% endblock %}
+{% block content %}
+<h2 style="margin-bottom:1.5rem;">Configuración — Recompensas</h2>
+<form method="POST">
+    <div class="form-group">
+        <label>Monedas por check-in</label>
+        <input type="number" name="recompensa_monedas_checkin" value="{{ valores.recompensa_monedas_checkin }}" required>
+    </div>
+    <div class="form-group">
+        <label>Costo de la ruleta (monedas)</label>
+        <input type="number" name="costo_ruleta" value="{{ valores.costo_ruleta }}" required>
+    </div>
+    <div class="form-group">
+        <label>Frecuencia del check-in (minutos)</label>
+        <input type="number" name="recompensa_frecuencia_minutos" value="{{ valores.recompensa_frecuencia_minutos }}" required>
+        <p class="hint">1440 = cada 24 horas</p>
+    </div>
+    <div class="acciones">
+        <button type="submit" class="btn btn-dark">Guardar</button>
+        <a href="{{ url_for('administrador.panel') }}" class="btn btn-light">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

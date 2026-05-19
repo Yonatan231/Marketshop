@@ -92,8 +92,6 @@
             {% if session.get('rol') == 'administrador' %}
                 <a href="{{ url_for('administrador.panel') }}" class="nav-logo">Market Shop</a>
                 <li><a href="{{ url_for('administrador.panel') }}">Panel</a></li>
-                <li><a href="{{ url_for('administrador.usuarios') }}">Usuarios</a></li>
-                <li><a href="{{ url_for('administrador.productos') }}">Productos</a></li>
                 <li><a href="#" onclick="document.getElementById('modal-cerrar-sesion').style.display='flex'">Cerrar Sesión</a></li>
                 {% else %}
                 <a href="{{ url_for('productos.productos') }}" class="nav-logo">Market Shop</a>

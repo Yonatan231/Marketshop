@@ -1,6 +1,77 @@
 {% extends "base.html" %}
-{% block title %}Panel Administrador{% endblock %}
+{% block title %}Panel Admin{% endblock %}
+{% block extra_styles %}
+<style>
+    .bienvenida {
+        margin-bottom: 2rem;
+        font-size: 1rem;
+        color: #555;
+    }
+    .panel-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+    .panel-btn {
+        display: block;
+        padding: 2rem 1rem;
+        background: #fff;
+        border: 1px solid #e8e8e4;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        color: #222;
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+        transition: background 0.15s;
+    }
+    .panel-btn:hover {
+        background: #f5f5f3;
+    }
+    .panel-btn span {
+        display: block;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+    .seccion {
+        margin-top: 2rem;
+    }
+    .seccion h3 {
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #999;
+        margin-bottom: 0.8rem;
+    }
+</style>
+{% endblock %}
 {% block content %}
-    <h2>Panel de Administrador</h2>
-    <p>Bienvenido, {{ session['nombre_completo'] }}</p>
+<p class="bienvenida">Bienvenido, {{ session['nombre_completo'] }}</p>
+
+<div class="seccion">
+    <h3>Gestión</h3>
+    <div class="panel-grid">
+        <a href="{{ url_for('administrador.usuarios') }}" class="panel-btn">
+            <img src="{{ url_for('static', filename='imagenes/sistema/usuarios.png') }}" style="width:40px; height:40px; margin-bottom:0.5rem; display:block; margin-inline:auto;">Usuarios
+        </a>
+        <a href="{{ url_for('administrador.productos') }}" class="panel-btn">
+            <img src="{{ url_for('static', filename='imagenes/sistema/productos.png') }}" style="width:40px; height:40px; margin-bottom:0.5rem; display:block; margin-inline:auto;">Productos
+        </a>
+    </div>
+</div>
+
+<div class="seccion">
+    <h3>Configuración</h3>
+    <div class="panel-grid">
+        <a href="{{ url_for('administrador.configuracion_descuentos') }}" class="panel-btn">
+            <img src="{{ url_for('static', filename='imagenes/sistema/descuentos.png') }}" style="width:40px; height:40px; margin-bottom:0.5rem; display:block; margin-inline:auto;">Descuentos
+        </a>
+        <a href="{{ url_for('administrador.configuracion_pedidos') }}" class="panel-btn">
+            <img src="{{ url_for('static', filename='imagenes/sistema/pedidos.png') }}" style="width:40px; height:40px; margin-bottom:0.5rem; display:block; margin-inline:auto;">Pedidos
+        </a>
+        <a href="{{ url_for('administrador.configuracion_recompensas') }}" class="panel-btn">
+            <img src="{{ url_for('static', filename='imagenes/sistema/recompensas.png') }}" style="width:40px; height:40px; margin-bottom:0.5rem; display:block; margin-inline:auto;">Recompensas
+        </a>
+    </div>
+</div>
 {% endblock %}

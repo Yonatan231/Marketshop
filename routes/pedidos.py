@@ -1,22 +1,23 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash
 from base_datos.conexion import db
 from datetime import datetime
+from base_datos.configuracion import get_configuracion_int
 
 pedidos_bp = Blueprint("pedidos", __name__)
 
 def calcular_estado(fecha_pedido):
-    """
-    Calcula el estado según el tiempo transcurrido desde que se hizo el pedido.
-    No se guarda en BD, se calcula al momento de mostrar.
-    """
-    ahora      = datetime.now()
-    minutos    = (ahora - fecha_pedido).total_seconds() / 60
+    ahora   = datetime.now()
+    minutos = (ahora - fecha_pedido).total_seconds() / 60
 
-    if minutos < 2:
+    t_pagado     = get_configuracion_int("pedido_minutos_pagado")
+    t_enviado    = get_configuracion_int("pedido_minutos_enviado")
+    t_entregado  = get_configuracion_int("pedido_minutos_entregado")
+
+    if minutos < t_pagado:
         return "pendiente"
-    elif minutos < 5:
+    elif minutos < t_enviado:
         return "pagado"
-    elif minutos < 10:
+    elif minutos < t_entregado:
         return "enviado"
     else:
         return "entregado"

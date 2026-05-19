@@ -1,13 +1,13 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from base_datos.conexion import db
 from decimal import Decimal
+from base_datos.configuracion import get_configuracion_float
 
 pago_bp = Blueprint("pago", __name__)
 
-COSTO_ENVIO = Decimal("5.00")
-
 
 def calcular_total(subtotal, descuento_activo):
+    COSTO_ENVIO = Decimal(str(get_configuracion_float("pedido_valor_envio")))
     if descuento_activo == "envio_gratis":
         envio = Decimal("0")
         descuento_valor = Decimal("0")

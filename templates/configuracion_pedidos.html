@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Configuración Pedidos{% endblock %}
+{% block extra_styles %}
+<style>
+    .form-group { margin-bottom: 1.2rem; }
+    label { display: block; font-size: 0.85rem; margin-bottom: 0.4rem; color: #555; }
+    input { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #ddd; border-radius: 3px; font-family: Georgia, serif; font-size: 0.9rem; }
+    .hint { font-size: 0.78rem; color: #999; margin-top: 0.3rem; }
+    .btn { padding: 0.6rem 1.2rem; border-radius: 3px; font-family: Georgia, serif; font-size: 0.9rem; cursor: pointer; text-decoration: none; border: none; }
+    .btn-dark { background: #222; color: #fff; }
+    .btn-light { background: #eee; color: #222; }
+    .acciones { display: flex; gap: 1rem; margin-top: 1.5rem; }
+</style>
+{% endblock %}
+{% block content %}
+<h2 style="margin-bottom:1.5rem;">Configuración — Pedidos</h2>
+<form method="POST">
+    <div class="form-group">
+        <label>Minutos hasta estado "Pagado"</label>
+        <input type="number" name="pedido_minutos_pagado" value="{{ valores.pedido_minutos_pagado }}" required>
+        <p class="hint">Tiempo desde la creación del pedido</p>
+    </div>
+    <div class="form-group">
+        <label>Minutos hasta estado "Enviado"</label>
+        <input type="number" name="pedido_minutos_enviado" value="{{ valores.pedido_minutos_enviado }}" required>
+    </div>
+    <div class="form-group">
+        <label>Minutos hasta estado "Entregado"</label>
+        <input type="number" name="pedido_minutos_entregado" value="{{ valores.pedido_minutos_entregado }}" required>
+    </div>
+    <div class="form-group">
+        <label>Valor del envío ($)</label>
+        <input type="number" step="0.01" name="pedido_valor_envio" value="{{ valores.pedido_valor_envio }}" required>
+    </div>
+    <div class="acciones">
+        <button type="submit" class="btn btn-dark">Guardar</button>
+        <a href="{{ url_for('administrador.panel') }}" class="btn btn-light">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

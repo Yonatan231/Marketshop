@@ -188,7 +188,7 @@
 
         <!-- Imagen -->
         {% if item.imagen_url %}
-            <img src="{{ url_for('static', filename='imagenes/' + item.imagen_url) }}" alt="{{ item.nombre }}">
+            <img src="{{ url_for('static', filename='imagenes/productos/' + item.imagen_url) }}" alt="{{ item.nombre }}">
         {% else %}
             <div class="sin-imagen">Sin imagen</div>
         {% endif %}
