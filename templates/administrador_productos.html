@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Productos{% endblock %}
+{% block extra_styles %}
+<style>
+    main { max-width: 1100px; }
+
+    .acciones-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 3px;
+        font-family: Georgia, serif;
+        font-size: 0.85rem;
+        cursor: pointer;
+        text-decoration: none;
+        border: none;
+    }
+    .btn-dark  { background: #222; color: #fff; }
+    .btn-light { background: #eee; color: #222; }
+
+    .tabla-contenedor { overflow-x: auto; }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.85rem;
+        border: 1px solid #e8e8e4;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    th {
+        background: #222;
+        color: #fff;
+        padding: 0.7rem 1rem;
+        text-align: left;
+        font-weight: normal;
+        letter-spacing: 0.03em;
+    }
+    td {
+        padding: 0.7rem 1rem;
+        border-bottom: 1px solid #e8e8e4;
+        color: #444;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f5f5f3; }
+
+    .producto-img {
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    select {
+        border-radius: 3px;
+        padding: 0.3rem 0.5rem;
+        font-family: Georgia, serif;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border: none;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="acciones-top">
+    <h2>Productos</h2>
+    <a href="{{ url_for('administrador.agregar_producto') }}" class="btn btn-dark">+ Agregar producto</a>
+</div>
+
+<div class="tabla-contenedor">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th><th>Imagen</th><th>Nombre</th><th>Categoría</th>
+                <th>Precio</th><th>Cantidad</th><th>Estado</th><th>Editar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td><img src="{{ url_for('static', filename='imagenes/' + p.imagen_url) }}" class="producto-img" alt="{{ p.nombre }}"></td>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.categoria }}</td>
+                <td>${{ p.precio }}</td>
+                <td>{{ p.cantidad }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('administrador.cambiar_estado_producto', id=p.id) }}">
+                        <select name="estado" onchange="this.form.submit(); actualizarColor(this)"
+                                style="{% if p.activo %}background:#eafaf1;color:#1e8449;{% else %}background:#fdecea;color:#c0392b;{% endif %} border-radius:3px; padding:0.3rem 0.5rem; font-family:Georgia,serif; font-size:0.85rem; cursor:pointer; border:none;">
+                            <option value="1" {% if p.activo %}selected{% endif %}>Activo</option>
+                            <option value="0" {% if not p.activo %}selected{% endif %}>Inactivo</option>
+                        </select>
+                    </form>
+                </td>
+                <td><a href="{{ url_for('administrador.editar_producto', id=p.id) }}" class="btn btn-light">Editar</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function actualizarColor(select) {
+        select.style.background = select.value === "1" ? "#eafaf1" : "#fdecea";
+        select.style.color      = select.value === "1" ? "#1e8449" : "#c0392b";
+    }
+</script>
+{% endblock %}

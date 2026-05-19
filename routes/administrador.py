@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from base_datos.conexion import db
+import os
+from werkzeug.utils import secure_filename
 
 administrador_bp = Blueprint("administrador", __name__)
 
@@ -41,3 +43,129 @@ def cambiar_estado(id):
     cursor.close()
     flash("Estado actualizado", "success")
     return redirect(url_for("administrador.usuarios"))
+
+
+# CRUD de productos
+CARPETA_IMAGENES = os.path.join("static", "imagenes")
+EXTENSIONES_PERMITIDAS = {"jpg", "jpeg", "png", "webp"}
+
+def extension_permitida(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in EXTENSIONES_PERMITIDAS
+
+
+@administrador_bp.route("/administrador/productos")
+def productos():
+    if administrador_inicio(): return administrador_inicio()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM productos")
+    lista = cursor.fetchall()
+    cursor.close()
+    return render_template("administrador_productos.html", productos=lista)
+
+
+@administrador_bp.route("/administrador/productos/agregar", methods=["GET", "POST"])
+def agregar_producto():
+    if administrador_inicio(): return administrador_inicio()
+
+    if request.method == "GET":
+        return render_template("editar_producto.html", producto=None)
+
+    nombre    = request.form.get("nombre", "").strip()
+    precio    = request.form.get("precio", "").strip()
+    categoria = request.form.get("categoria", "").strip()
+    cantidad  = request.form.get("cantidad", "0").strip()
+    imagen    = request.files.get("imagen")
+
+    if not nombre or not precio or not categoria or not imagen:
+        flash("Todos los campos son obligatorios", "error")
+        return redirect(url_for("administrador.agregar_producto"))
+
+    if not extension_permitida(imagen.filename):
+        flash("Formato de imagen no permitido (jpg, jpeg, png, webp)", "error")
+        return redirect(url_for("administrador.agregar_producto"))
+
+    try:
+        precio   = float(precio)
+        cantidad = int(cantidad)
+    except ValueError:
+        flash("Precio y cantidad deben ser números válidos", "error")
+        return redirect(url_for("administrador.agregar_producto"))
+
+    if precio <= 0 or cantidad < 0:
+        flash("El precio debe ser mayor a 0 y la cantidad no puede ser negativa", "error")
+        return redirect(url_for("administrador.agregar_producto"))
+
+    filename = secure_filename(imagen.filename)
+    imagen.save(os.path.join(CARPETA_IMAGENES, filename))
+
+    cursor = db.cursor()
+    cursor.execute("""
+        INSERT INTO productos (nombre, precio, categoria, imagen_url, cantidad)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (nombre, precio, categoria, filename, cantidad))
+    db.commit()
+    cursor.close()
+
+    flash("Producto agregado", "success")
+    return redirect(url_for("administrador.productos"))
+
+
+@administrador_bp.route("/administrador/productos/editar/<int:id>", methods=["GET", "POST"])
+def editar_producto(id):
+    if administrador_inicio(): return administrador_inicio()
+    cursor = db.cursor()
+
+    if request.method == "GET":
+        cursor.execute("SELECT * FROM productos WHERE id = %s", (id,))
+        producto = cursor.fetchone()
+        cursor.close()
+        return render_template("editar_producto.html", producto=producto)
+
+    nombre    = request.form.get("nombre", "").strip()
+    precio    = request.form.get("precio", "").strip()
+    categoria = request.form.get("categoria", "").strip()
+    cantidad  = request.form.get("cantidad", "0").strip()
+    imagen    = request.files.get("imagen")
+
+    if imagen and imagen.filename:
+        if not extension_permitida(imagen.filename):
+            flash("Formato de imagen no permitido", "error")
+            return redirect(url_for("administrador.editar_producto", id=id))
+        filename = secure_filename(imagen.filename)
+        imagen.save(os.path.join(CARPETA_IMAGENES, filename))
+    else:
+        cursor.execute("SELECT imagen_url FROM productos WHERE id = %s", (id,))
+        filename = cursor.fetchone()["imagen_url"]
+
+    try:
+        precio   = float(precio)
+        cantidad = int(cantidad)
+    except ValueError:
+        flash("Precio y cantidad deben ser números válidos", "error")
+        return redirect(url_for("administrador.editar_producto", id=id))
+
+    if precio <= 0 or cantidad < 0:
+        flash("El precio debe ser mayor a 0 y la cantidad no puede ser negativa", "error")
+        return redirect(url_for("administrador.editar_producto", id=id))
+
+    cursor.execute("""
+        UPDATE productos SET nombre=%s, precio=%s, categoria=%s, imagen_url=%s, cantidad=%s
+        WHERE id = %s
+    """, (nombre, precio, categoria, filename, cantidad, id))
+    db.commit()
+    cursor.close()
+
+    flash("Producto actualizado", "success")
+    return redirect(url_for("administrador.productos"))
+
+
+@administrador_bp.route("/administrador/productos/estado/<int:id>", methods=["POST"])
+def cambiar_estado_producto(id):
+    if administrador_inicio(): return administrador_inicio()
+    nuevo_estado = request.form.get("estado") == "1"
+    cursor = db.cursor()
+    cursor.execute("UPDATE productos SET activo = %s WHERE id = %s", (nuevo_estado, id))
+    db.commit()
+    cursor.close()
+    flash("Estado actualizado", "success")
+    return redirect(url_for("administrador.productos"))
